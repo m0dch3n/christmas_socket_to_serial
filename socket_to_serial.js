@@ -107,8 +107,8 @@ clickerClient.on('STATE_UPDATE', function (data) {
             user.name = data.state.name;
             user.lightsOn = data.state.lightsOn;
             user.battery = data.state.items.battery;
-            user.energy = data.state.energy,
-                user.lightbulb = data.state.items.lightbulb || 0;
+            user.energy = data.state.energy;
+            user.lightbulb = data.state.items.lightbulb || 0;
             user.time = new Date().getTime();
 
             if (user.id == currentUserID) {

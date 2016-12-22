@@ -97,6 +97,7 @@ clickerClient.on('STATE_UPDATE', function (data) {
                 'lightsOn': data.state.lightsOn,
                 'battery': data.state.items.battery,
                 'energy': data.state.energy,
+                'lightsPower': data.state.lightsPower || 0,
                 'lightbulb': data.state.items.lightbulb || 0,
                 'lightBulbColors': data.state.lightBulbColors,
                 'time': new Date().getTime()
@@ -106,6 +107,7 @@ clickerClient.on('STATE_UPDATE', function (data) {
             user.lightsOn = data.state.lightsOn;
             user.battery = data.state.items.battery;
             user.energy = data.state.energy;
+            user.lightsPower = data.state.lightsPower || 0,
             user.lightbulb = data.state.items.lightbulb || 0;
             user.lightBulbColors = data.state.lightBulbColors,
             user.time = new Date().getTime();
@@ -192,7 +194,7 @@ function switchUser() {
 
 function sendCommand(command) {
     if (ready) {
-        //console.log('S:' + command);
+        console.log('S:' + command);
         serialPort.write(command, function (err, bytesWritten) {
             if (err) {
                 console.log(err.message);
@@ -205,24 +207,24 @@ function animateLedForUser(user) {
     if (!user) {
         user = getUser(currentUserID);
     }
-    if (!user) {
+    if (!user || !user.lightsOn) {
         switchUser();
     } else {
-        // var percent = user.energy / user.battery;
-        // var percentRound = Math.round(percent);
-        // var countLed = Math.round(numLED * percent / 100);
+        var percent = user.lightsPower;
+        var percentRound = Math.round(percent);
+        var countLed = Math.round(numLED * percent);
 
         for (i = 1; i <= numLED; i++) {
-            // if (i > countLed) {
-            //     addCommandToArduinoQueue(i + ',0,0,0,0');
-            // } else {
+            if (i > countLed) {
+                addCommandToArduinoQueue(i + ',0,0,0,0');
+            } else {
                 var c = user.lightBulbColors[i-1];
                 var r = parseInt(c.substring(1,3), 16);
                 var g = parseInt(c.substring(3,5), 16);
                 var b = parseInt(c.substring(5,7), 16);
                 var command = ',' + r + ',' + g + ',' + b + ',' + brightness;
                 addCommandToArduinoQueue(i + command);
-            // }
+            }
         }
         addCommandToArduinoQueue('show');
     }

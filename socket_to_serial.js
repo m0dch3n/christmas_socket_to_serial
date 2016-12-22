@@ -48,7 +48,7 @@ serialPort.on('close', function () {
 });
 
 serialPort.on('data', function (data) {
-    console.log(data);
+    //console.log(data);
 });
 
 
@@ -187,6 +187,7 @@ function switchUser() {
         currentUserID = currentUser.id;
         tmpArr.push(currentUser);
         tmpArr.shift();
+        addCommandToArduinoQueue('reset');
     } else {
         currentUser = null;
     }
@@ -194,7 +195,7 @@ function switchUser() {
 
 function sendCommand(command) {
     if (ready) {
-        console.log('S:' + command);
+        //console.log('S:' + command);
         serialPort.write(command, function (err, bytesWritten) {
             if (err) {
                 console.log(err.message);
@@ -213,6 +214,10 @@ function animateLedForUser(user) {
         var percent = user.lightsPower;
         var percentRound = Math.round(percent);
         var countLed = Math.round(numLED * percent);
+
+        console.log(user.name);
+        console.log(countLed);
+
 
         for (i = 1; i <= numLED; i++) {
             if (i > countLed) {

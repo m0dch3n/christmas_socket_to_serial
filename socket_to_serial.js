@@ -108,9 +108,9 @@ clickerClient.on('STATE_UPDATE', function (data) {
             user.battery = data.state.items.battery;
             user.energy = data.state.energy;
             user.lightsPower = data.state.lightsPower || 0,
-            user.lightbulb = data.state.items.lightbulb || 0;
+                user.lightbulb = data.state.items.lightbulb || 0;
             user.lightBulbColors = data.state.lightBulbColors,
-            user.time = new Date().getTime();
+                user.time = new Date().getTime();
 
             if (user.id == currentUserID) {
                 animateLedForUser(user);
@@ -215,22 +215,25 @@ function animateLedForUser(user) {
         var percentRound = Math.round(percent);
         var countLed = Math.round(numLED * percent);
 
-        console.log(user.name);
-        console.log(countLed);
+        if (countLed >= 1) {
+            console.log(user.name);
+            console.log(countLed);
 
-
-        for (i = 1; i <= numLED; i++) {
-            if (i > countLed) {
-                addCommandToArduinoQueue(i + ',0,0,0,0');
-            } else {
-                var c = user.lightBulbColors[i-1];
-                var r = parseInt(c.substring(1,3), 16);
-                var g = parseInt(c.substring(3,5), 16);
-                var b = parseInt(c.substring(5,7), 16);
-                var command = ',' + r + ',' + g + ',' + b + ',' + brightness;
-                addCommandToArduinoQueue(i + command);
+            for (i = 1; i <= numLED; i++) {
+                if (i > countLed) {
+                    addCommandToArduinoQueue(i + ',0,0,0,0');
+                } else {
+                    var c = user.lightBulbColors[i - 1];
+                    var r = parseInt(c.substring(1, 3), 16);
+                    var g = parseInt(c.substring(3, 5), 16);
+                    var b = parseInt(c.substring(5, 7), 16);
+                    var command = ',' + r + ',' + g + ',' + b + ',' + brightness;
+                    addCommandToArduinoQueue(i + command);
+                }
             }
+            addCommandToArduinoQueue('show');
+        } else {
+            addCommandToArduinoQueue('reset');
         }
-        addCommandToArduinoQueue('show');
     }
 }

@@ -75,6 +75,7 @@ ledServerIO.on('connection', function (client) {
         client.emit('data', 'LED NOT READY');
     }
 
+    clientArr.splice(0,clientArr.length);
 
     clientArr.push(client);
 

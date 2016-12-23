@@ -1,4 +1,4 @@
-const SOCKET_SERVER_ADDRESS = 'https://ion.clicker.lu';
+const SOCKET_SERVER_ADDRESS = 'https://www.clicker.lu';
 var args = process.argv.slice(2);
 if (args.length != 2) {
     console.log('Missing args');
@@ -73,6 +73,12 @@ ledServerIO.on('connection', function (client) {
     } else {
         client.emit('data', 'LED NOT READY');
     }
+
+    console.log(client);
+    client.on('currentUser', function () {
+        var user = getUser(currentUserID);
+        client.emit('currentUser', user);
+    });
 });
 
 // CLIENT SECTION //
@@ -211,29 +217,25 @@ function animateLedForUser(user) {
     if (!user || !user.lightsOn) {
         switchUser();
     } else {
-        var percent = user.lightsPower;
-        var percentRound = Math.round(percent);
+        // var percent = user.lightsPower;
+        var percent = user.energy / user.battery / 100;
         var countLed = Math.round(numLED * percent);
 
-        if (countLed >= 1) {
-            console.log(user.name);
-            console.log(countLed);
+        console.log(user.name);
+        console.log(countLed);
 
-            for (i = 1; i <= numLED; i++) {
-                if (i > countLed) {
-                    addCommandToArduinoQueue(i + ',0,0,0,0');
-                } else {
-                    var c = user.lightBulbColors[i - 1];
-                    var r = parseInt(c.substring(1, 3), 16);
-                    var g = parseInt(c.substring(3, 5), 16);
-                    var b = parseInt(c.substring(5, 7), 16);
-                    var command = ',' + r + ',' + g + ',' + b + ',' + brightness;
-                    addCommandToArduinoQueue(i + command);
-                }
+        for (i = 1; i <= numLED; i++) {
+            if (i > countLed) {
+                addCommandToArduinoQueue(i + ',0,0,0,0');
+            } else {
+                var c = user.lightBulbColors[i - 1];
+                var r = parseInt(c.substring(1, 3), 16);
+                var g = parseInt(c.substring(3, 5), 16);
+                var b = parseInt(c.substring(5, 7), 16);
+                var command = ',' + r + ',' + g + ',' + b + ',' + brightness;
+                addCommandToArduinoQueue(i + command);
             }
-            addCommandToArduinoQueue('show');
-        } else {
-            addCommandToArduinoQueue('reset');
         }
+        addCommandToArduinoQueue('show');
     }
 }

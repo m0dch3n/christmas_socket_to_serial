@@ -14,6 +14,7 @@ var currentUserID;
 var previousUserID;
 var numLED = 50;
 var brightness = 100;
+var clientArr = [];
 
 console.log('SERIAL PORT DEVICE: ' + serialPortDevice + ' SERVER PORT: ' + serverPort);
 
@@ -74,7 +75,9 @@ ledServerIO.on('connection', function (client) {
         client.emit('data', 'LED NOT READY');
     }
 
-    console.log(client);
+
+    clientArr.push(client);
+
     client.on('currentUser', function () {
         var user = getUser(currentUserID);
         client.emit('currentUser', user);
@@ -131,7 +134,7 @@ clickerClient.on('STATE_UPDATE', function (data) {
 // switch user every 10 seconds
 setInterval(function () {
     switchUser();
-}, 10000);
+}, 15000);
 
 // clean inactive users every 30 seconds
 setInterval(function () {
@@ -214,9 +217,13 @@ function animateLedForUser(user) {
     if (!user) {
         user = getUser(currentUserID);
     }
-    if (!user || !user.lightsOn) {
+    if (!user) {
         switchUser();
     } else {
+        for(var key in clientArr) {
+            var client = clientArr[key];
+            client.emit('currentUser', user);
+        }
         // var percent = user.lightsPower;
         var percent = user.energy / user.battery / 100;
         var countLed = Math.round(numLED * percent);
